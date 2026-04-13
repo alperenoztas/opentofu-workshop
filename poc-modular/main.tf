@@ -140,6 +140,83 @@ resource "proxmox_virtual_environment_vm" "vm" {
   }
 }
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Lab 4 — Kubernetes: Namespace, Deployment ve Service (HCL ile)
+# ─────────────────────────────────────────────────────────────────────────────
+
+resource "kubernetes_namespace_v1" "demo" {
+  metadata {
+    name = "${var.vm_name_prefix}-ns"
+    labels = {
+      managed-by = "opentofu"
+      env        = "demo"
+    }
+  }
+}
+
+resource "kubernetes_deployment_v1" "app" {
+  metadata {
+    name      = "${var.vm_name_prefix}-app"
+    namespace = kubernetes_namespace_v1.demo.metadata[0].name
+    labels    = { app = "${var.vm_name_prefix}-app" }
+  }
+
+  spec {
+    replicas = var.k8s_replicas
+
+    selector {
+      match_labels = { app = "${var.vm_name_prefix}-app" }
+    }
+
+    template {
+      metadata {
+        labels = { app = "${var.vm_name_prefix}-app" }
+      }
+
+      spec {
+        container {
+          name  = "app"
+          image = "nginx:latest"
+
+          port {
+            container_port = 80
+          }
+
+          resources {
+            limits = {
+              cpu    = "250m"
+              memory = "128Mi"
+            }
+            requests = {
+              cpu    = "100m"
+              memory = "64Mi"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+resource "kubernetes_service_v1" "app" {
+  metadata {
+    name      = "${var.vm_name_prefix}-svc"
+    namespace = kubernetes_namespace_v1.demo.metadata[0].name
+  }
+
+  spec {
+    selector = { app = "${var.vm_name_prefix}-app" }
+
+    port {
+      port        = 80
+      target_port = 80
+      protocol    = "TCP"
+    }
+
+    type = "NodePort"
+  }
+}
+
 # ─── Outputs ──────────────────────────────────────────────────────────────────
 output "floating_ip" {
   description = "VM'e atanan floating IP"
@@ -164,4 +241,14 @@ output "proxmox_vm_names" {
 output "proxmox_vm_ids" {
   description = "Proxmox VM ID listesi"
   value       = proxmox_virtual_environment_vm.vm[*].vm_id
+}
+
+output "k8s_namespace" {
+  description = "Oluşturulan Kubernetes namespace"
+  value       = kubernetes_namespace_v1.demo.metadata[0].name
+}
+
+output "k8s_service_name" {
+  description = "Oluşturulan Kubernetes service adı"
+  value       = kubernetes_service_v1.app.metadata[0].name
 }

@@ -78,3 +78,21 @@ variable "vm_count" {
   type        = number
   default     = 2
 }
+
+# ─── Kubernetes ──────────────────────────────────────────────────────────────
+variable "k8s_config_path" {
+  description = "Kubernetes kubeconfig dosyası yolu"
+  type        = string
+  default     = "~/.kube/config"
+}
+
+variable "k8s_config_context" {
+  description = "Kullanılacak kubectl context adı"
+  type        = string
+}
+
+variable "k8s_replicas" {
+  description = "Deployment replica sayısı"
+  type        = number
+  default     = 2
+}

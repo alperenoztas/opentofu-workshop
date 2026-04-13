@@ -15,3 +15,8 @@ provider "proxmox" {
   api_token = var.proxmox_api_token
   insecure  = var.proxmox_insecure
 }
+
+provider "kubernetes" {
+  config_path    = var.k8s_config_path
+  config_context = var.k8s_config_context
+}
