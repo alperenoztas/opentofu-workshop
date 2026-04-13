@@ -1,5 +1,5 @@
 # ─────────────────────────────────────────────────────────────────────────────
-# Lab 2 — Düz (flat) yapı: Tüm OpenStack kaynakları doğrudan main.tf içinde
+# Lab 2 — OpenStack kaynakları (düz yapı)
 # ─────────────────────────────────────────────────────────────────────────────
 
 # ─── Data Sources ─────────────────────────────────────────────────────────────
@@ -98,6 +98,48 @@ resource "openstack_networking_floatingip_associate_v2" "fip_assoc" {
   port_id     = openstack_networking_port_v2.vm_port.id
 }
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Lab 3 — Proxmox: count meta-argümanı ile çoklu VM
+# ─────────────────────────────────────────────────────────────────────────────
+resource "proxmox_virtual_environment_vm" "vm" {
+  count     = var.vm_count
+  name      = "${var.vm_name_prefix}-${count.index + 1}"
+  node_name = var.proxmox_node
+  started   = false
+
+  description = "OpenTofu ile otomatik oluşturuldu — ULAKFKM IaC"
+  tags        = ["opentofu", "iac-demo", "ulakfkm"]
+
+  cpu {
+    cores = 2
+    type  = "x86-64-v2-AES"
+  }
+
+  memory {
+    dedicated = 2048
+  }
+
+  disk {
+    datastore_id = "local"
+    file_format  = "qcow2"
+    interface    = "virtio0"
+    size         = 20
+  }
+
+  network_device {
+    bridge = "vmbr0"
+    model  = "virtio"
+  }
+
+  agent {
+    enabled = false
+  }
+
+  operating_system {
+    type = "l26"
+  }
+}
+
 # ─── Outputs ──────────────────────────────────────────────────────────────────
 output "floating_ip" {
   description = "VM'e atanan floating IP"
@@ -105,11 +147,21 @@ output "floating_ip" {
 }
 
 output "vm_name" {
-  description = "Oluşturulan VM adı"
+  description = "Oluşturulan OpenStack VM adı"
   value       = openstack_compute_instance_v2.vm.name
 }
 
 output "subnet_cidr" {
   description = "Oluşturulan subnet CIDR"
   value       = openstack_networking_subnet_v2.subnet.cidr
+}
+
+output "proxmox_vm_names" {
+  description = "Oluşturulan Proxmox VM isimleri"
+  value       = proxmox_virtual_environment_vm.vm[*].name
+}
+
+output "proxmox_vm_ids" {
+  description = "Proxmox VM ID listesi"
+  value       = proxmox_virtual_environment_vm.vm[*].vm_id
 }

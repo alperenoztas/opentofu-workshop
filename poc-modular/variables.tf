@@ -42,9 +42,39 @@ variable "os_region" {
   default     = "RegionOne"
 }
 
+# ─── Proxmox ──────────────────────────────────────────────────────────────────
+variable "proxmox_endpoint" {
+  description = "Proxmox API endpoint URL"
+  type        = string
+}
+
+variable "proxmox_api_token" {
+  description = "Proxmox API token (format: user@realm!tokenid=secret)"
+  type        = string
+  sensitive   = true
+}
+
+variable "proxmox_node" {
+  description = "Proxmox node adı"
+  type        = string
+  default     = "proxmox-01"
+}
+
+variable "proxmox_insecure" {
+  description = "TLS doğrulamasını atla (self-signed sertifika)"
+  type        = bool
+  default     = true
+}
+
 # ─── Genel ────────────────────────────────────────────────────────────────────
 variable "vm_name_prefix" {
   description = "Tüm kaynak isimlerinde kullanılacak önek"
   type        = string
   default     = "iac-demo"
+}
+
+variable "vm_count" {
+  description = "Proxmox'ta oluşturulacak VM sayısı"
+  type        = number
+  default     = 2
 }
