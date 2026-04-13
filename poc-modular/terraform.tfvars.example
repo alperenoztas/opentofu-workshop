@@ -1,0 +1,18 @@
+# ─── OpenStack ────────────────────────────────────────────────────────────────
+os_auth_url          = "https://<openstack-endpoint>:5000/v3"
+os_username          = "<kullanici-adiniz>"
+os_password          = "<sifreniz>"
+os_project_name      = "<proje-adiniz>"
+os_project_id        = "<proje-id>"
+os_user_domain_name  = "user_domain"
+os_project_domain_id = "<domain-id>"
+os_region            = "RegionOne"
+
+# ─── Proxmox ──────────────────────────────────────────────────────────────────
+proxmox_endpoint  = "https://<proxmox-ip>:8006"
+proxmox_api_token = "<kullanici>@<realm>!<token-id>=<token-secret>"
+proxmox_node      = "proxmox-01"
+
+# ─── VM Parametreleri ─────────────────────────────────────────────────────────
+vm_count       = 2
+vm_name_prefix = "iac-demo"
